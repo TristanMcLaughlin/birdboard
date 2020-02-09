@@ -18,3 +18,13 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/projects', function () {
+    $projects = App\Project::all();
+
+    return view('projects.index', compact('projects'));
+});
+
+Route::post('/projects', function () {
+    App\Project::create(request(['title', 'description']));
+});
