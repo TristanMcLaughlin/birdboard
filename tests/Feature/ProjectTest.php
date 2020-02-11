@@ -47,6 +47,13 @@ class ProjectTest extends TestCase
         $this->post('/projects', $attributes)->assertSessionHasErrors('description');
     }
 
+    public function testAProjectRequiresAnOwner ()
+    {
+        $attributes = factory('App\Project')->raw(['owner_id' => NULL]);
+        
+        $this->post('/projects', $attributes)->assertSessionHasErrors('owner_id');
+    }
+
     public function testAUserCanViewAProject () 
     {
         $this->withoutExceptionHandling();
