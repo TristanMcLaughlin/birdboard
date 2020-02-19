@@ -56,21 +56,46 @@ class ProjectTest extends TestCase
         $this->post('/projects', $attributes)->assertSessionHasErrors('description');
     }
 
-    public function testOnlyAuthenticatedUsersCanCreateProjects ()
+    public function testGuestsMayNotViewProjects ()
     {
         $attributes = factory('App\Project')->raw();
         
         $this->post('/projects', $attributes)->assertRedirect('login');
+    }
+    
+    public function testGuestCannotViewASingleProject ()
+    {
+        $project = factory('App\Project')->create();
+
+        $this->get($project->path())->assertRedirect('login');
     }
 
     public function testAUserCanViewAProject () 
     {
         $this->withoutExceptionHandling();
 
-        $project = factory('App\Project')->create();
+        $this->be(factory('App\User')->create());
+
+        $project = factory('App\Project')->create([
+            'owner_id' => auth()->id()
+        ]);
         
         $this->get($project->path())
             ->assertSee($project->title)
             ->assertSee($project->description);
+    }
+
+    public function testAUserCannotViewOthersProjects () 
+    {
+        $this->be(factory('App\User')->create());
+
+        $otherUser = factory('App\User')->create();
+
+        $project = factory('App\Project')->create([
+            'owner_id' => $otherUser->id
+        ]);
+
+        $this->get($project->path())
+            ->assertStatus(403);
     }
 }
