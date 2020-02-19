@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ProjectTest extends TestCase
+class ManageProjectsTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
@@ -56,20 +56,15 @@ class ProjectTest extends TestCase
         $this->post('/projects', $attributes)->assertSessionHasErrors('description');
     }
 
-    public function testGuestsMayNotViewProjects ()
-    {
-        $attributes = factory('App\Project')->raw();
-        
-        $this->post('/projects', $attributes)->assertRedirect('login');
-    }
-    
-    public function testGuestCannotViewASingleProject ()
+    public function testGuestsMayNotInteractWithProjects ()
     {
         $project = factory('App\Project')->create();
-
+        
+        $this->post('/projects', $project->toArray())->assertRedirect('login');
+        $this->get('/projects')->assertRedirect('login');
         $this->get($project->path())->assertRedirect('login');
     }
-
+    
     public function testAUserCanViewAProject () 
     {
         $this->withoutExceptionHandling();
