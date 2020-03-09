@@ -19,12 +19,15 @@ class ManageProjectsTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
+        $this->actingAs(factory('App\User')->create());
+
+
         $attributes = [
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph
         ];
 
-        $this->actingAs(factory('App\User')->create());
+        $this->get('projects/create')->assertStatus(200);
 
         $this->post('/projects', $attributes)->assertRedirect('/projects');
 
